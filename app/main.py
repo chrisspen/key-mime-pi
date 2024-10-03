@@ -216,8 +216,8 @@ def send_mouse_move(hid_path, x, y, buttons):
         # Handle signed bytes for HID report
         # Raw values from the browser are -/+ but the physical device
         # only accept positive integeres between 0-255, so rescale.
-        buf[1] = map(buf[1], -127, 127, 0, 255)
-        buf[2] = map(buf[2], -127, 127, 0, 255)
+        buf[1] = map_value(buf[1], -127, 127, 0, 255)
+        buf[2] = map_value(buf[2], -127, 127, 0, 255)
         logger.info('Sending mouse movements: %s', buf)
 
         hid_handle.write(bytearray(buf))
