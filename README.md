@@ -44,7 +44,7 @@ When the Pi reboots, run Key Mime Pi with the following commands:
 ```
 python3 -m venv venv
 . venv/bin/activate
-pip install --requirement requirements.txt
+pip install -r requirements.txt
 PORT=8000 ./app/main.py
 ```
 
