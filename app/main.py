@@ -210,6 +210,12 @@ def map_value(x, in_min, in_max, out_min, out_max):
     return v
 
 
+def num2hex(x):
+    if x < 0:
+        x = (256 + x) % 256  # Convert negative to unsigned
+    return x
+
+
 def send_mouse_move(hid_path, x, y, buttons):
     """
     Essentially you have to write 3 bytes:
@@ -228,7 +234,7 @@ def send_mouse_move(hid_path, x, y, buttons):
             echo -ne \\x00\\x9c\\x00 > /dev/hidg1
     """
 
-    byte_string = f"\\x{buttons:02x}\\x{x:02x}\\x{y:02x}"
+    byte_string = f"\\x{num2hex(buttons):02x}\\x{num2hex(x):02x}\\x{num2hex(y):02x}"
     logger.info('byte_string: %s', byte_string)
 
     # with open(hid_path, 'wb+') as hid_handle:
