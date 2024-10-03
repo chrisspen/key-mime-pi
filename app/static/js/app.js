@@ -75,7 +75,7 @@ function onKeyDown(evt) {
   } else if (evt.location === 2) {
     location = 'right';
   }
-  
+
   socket.emit('keystroke', {
     metaKey: evt.metaKey,
     altKey: evt.altKey,
@@ -102,4 +102,31 @@ socket.on('connect', onSocketConnect);
 socket.on('disconnect', onSocketDisconnect);
 socket.on('keystroke-received', (data) => {
   updateKeyStatus(processingQueue.shift(), data.success);
+});
+
+document.addEventListener("mousemove", (evt) => {
+  if (!connected) return;
+  socket.emit('mouse_move', {
+    x: evt.movementX,
+    y: evt.movementY,
+    buttons: evt.buttons
+  });
+});
+
+document.addEventListener("mousedown", (evt) => {
+  if (!connected) return;
+  socket.emit('mouse_click', {
+    button: evt.button,
+    x: evt.clientX,
+    y: evt.clientY
+  });
+});
+
+document.addEventListener("mouseup", (evt) => {
+  if (!connected) return;
+  socket.emit('mouse_release', {
+    button: evt.button,
+    x: evt.clientX,
+    y: evt.clientY
+  });
 });

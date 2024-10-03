@@ -194,13 +194,38 @@ def convert(js_key_event):
             (js_key_event.key, js_key_event.key_code)) from exc
 
 
-def send(hid_path, control_keys, hid_keycode):
+def send_keyboard(hid_path, control_keys, hid_keycode):
     with open(hid_path, 'wb+') as hid_handle:
         buf = [0] * 8
         buf[0] = control_keys
         buf[2] = hid_keycode
         hid_handle.write(bytearray(buf))
         hid_handle.write(bytearray([0] * 8))
+
+
+def send_mouse_move(hid_path, x, y, buttons):
+    with open(hid_path, 'wb+') as hid_handle:
+        buf = [0] * 8  # Initialize a buffer for the mouse report
+        buf[0] = buttons  # Buttons pressed
+        buf[1] = x  # X movement
+        buf[2] = y  # Y movement
+        hid_handle.write(bytearray(buf))
+
+
+def send_mouse_click(hid_path, button, x, y):
+    # Implement the click logic
+    with open(hid_path, 'wb+') as hid_handle:
+        buf = [0] * 8
+        buf[0] = 1 << button  # Set the button that was clicked
+        hid_handle.write(bytearray(buf))
+
+
+def send_mouse_release(hid_path, button, x, y):
+    # Implement the release logic if needed
+    with open(hid_path, 'wb+') as hid_handle:
+        buf = [0] * 8
+        buf[0] = 0  # Reset buttons
+        hid_handle.write(bytearray(buf))
 
 
 def _parse_key_event(payload):
@@ -226,10 +251,48 @@ def socket_keystroke(message):
         logger.info('Ignoring %s key (keycode=%d)', key_event.key,
                     key_event.key_code)
     else:
-        send(hid_path0, control_keys, hid_keycode)
+        send_keyboard(hid_path0, control_keys, hid_keycode)
         success = True
 
     socketio.emit('keystroke-received', {'success': success})
+
+
+@socketio.on('mouse_move')
+def socket_mouse_move(data):
+    # Extract the mouse movement data
+    x = data['x']
+    y = data['y']
+    buttons = data['buttons']
+
+    # Handle mouse movement logic here
+    logger.info(f'Mouse moved: x={x}, y={y}, buttons={buttons}')
+
+    # Convert movement to HID report and send to hid_path1
+    send_mouse_move(hid_path1, x, y, buttons)
+
+
+@socketio.on('mouse_click')
+def socket_mouse_click(data):
+    button = data['button']
+    x = data['x']
+    y = data['y']
+
+    logger.info(f'Mouse clicked: button={button}, x={x}, y={y}')
+
+    # Convert click to HID report and send to hid_path1
+    send_mouse_click(hid_path1, button, x, y)
+
+
+@socketio.on('mouse_release')
+def socket_mouse_release(data):
+    button = data['button']
+    x = data['x']
+    y = data['y']
+
+    logger.info(f'Mouse released: button={button}, x={x}, y={y}')
+
+    # Handle mouse release logic if needed
+    send_mouse_release(hid_path1, button, x, y)
 
 
 @socketio.on('connect')
