@@ -4,15 +4,16 @@ import time
 
 def write_report(report):
     with open('/dev/hidg1', 'wb+') as fd:
-        print('Sending ' + report)
+        print('Sending ' +
+              report.hex())  # Convert bytes to hex string for display
         fd.write(report)
         print('Finished sending')
     print('Closed fd')
 
 
 def alternate_left_right():
-    s1 = b'\x00\x7f\x00'
-    s2 = b'\x00\x90\x00'
+    s1 = b'\x00\x7f\x00'  # Move right
+    s2 = b'\x00\x90\x00'  # Move left
     for i in range(100):
         write_report(s1)
         time.sleep(0.3)
