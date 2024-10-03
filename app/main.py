@@ -237,7 +237,9 @@ def send_mouse_move(hid_path, x, y, buttons):
     byte_string = f"\\\\x{num2hex(buttons):02x}\\\\x{num2hex(x):02x}\\\\x{num2hex(y):02x}"
     logger.info('byte_string: %s', byte_string)
 
-    cmd = f"echo -ne {byte_string} > {hid_path}"
+    # cmd = f"echo -ne {byte_string} > {hid_path}"
+    cmd = "echo -ne \\x00\\x9c\\x00 > /dev/hidg1"
+    # cmd = f"echo -ne \\x00\\x9c\\x00 > {hid_path}"
     logger.info('cmd: %s', cmd)
     os.system(cmd)
 
