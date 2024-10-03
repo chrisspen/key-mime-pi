@@ -2,6 +2,7 @@
 
 import logging
 import os
+import time
 
 import flask
 import flask_socketio
@@ -312,7 +313,7 @@ def test_disconnect():
 
 @app.route('/', methods=['GET'])
 def index_get():
-    return flask.render_template('index.html')
+    return flask.render_template('index.html', cache_bust=int(time.time()))
 
 
 if __name__ == '__main__':
