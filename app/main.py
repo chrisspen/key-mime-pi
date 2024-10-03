@@ -205,7 +205,9 @@ def send_keyboard(hid_path, control_keys, hid_keycode):
 
 
 def map_value(x, in_min, in_max, out_min, out_max):
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    v = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+    v = min(max(v, out_min), out_max)
+    return v
 
 
 def send_mouse_move(hid_path, x, y, buttons):
@@ -216,8 +218,9 @@ def send_mouse_move(hid_path, x, y, buttons):
         # Handle signed bytes for HID report
         # Raw values from the browser are -/+ but the physical device
         # only accept positive integeres between 0-255, so rescale.
-        buf[1] = map_value(buf[1], -127, 127, 0, 255)
-        buf[2] = map_value(buf[2], -127, 127, 0, 255)
+        logger.info('Raw mouse movements: %s', buf)
+        buf[1] = int(round(map_value(buf[1], -127, 127, 0, 255)))
+        buf[2] = int(round(map_value(buf[2], -127, 127, 0, 255)))
         logger.info('Sending mouse movements: %s', buf)
 
         hid_handle.write(bytearray(buf))
