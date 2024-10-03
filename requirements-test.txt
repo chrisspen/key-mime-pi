@@ -1,0 +1,5 @@
+tox>=2.0.0
+pylint
+yapf
+pre-commit
+
