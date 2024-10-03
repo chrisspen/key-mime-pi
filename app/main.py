@@ -207,8 +207,13 @@ def send_mouse_move(hid_path, x, y, buttons):
     with open(hid_path, 'wb+') as hid_handle:
         buf = [0] * 8  # Initialize a buffer for the mouse report
         buf[0] = buttons  # Buttons pressed
-        buf[1] = x  # X movement
-        buf[2] = y  # Y movement
+
+        # Handle signed bytes for HID report
+        # Raw values from the browser are -/+ but the physical device
+        # only accept positive integeres between 0-255, so rescale.
+        buf[1] = x if -127 <= x <= 127 else 0  # Clamp to valid range
+        buf[2] = y if -127 <= y <= 127 else 0  # Clamp to valid range
+
         hid_handle.write(bytearray(buf))
 
 

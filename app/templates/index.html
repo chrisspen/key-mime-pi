@@ -1,3 +1,4 @@
+{% import 'time' %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -30,6 +31,6 @@
 
       {# This must be compatible with the version of Flask-SocketIO being used. #}
       <script src="/third-party/socket.io/4.4.1/socket.io.min.js"></script>
-      <script src="/js/app.js"></script>
+      <script src="/js/app.js?v={{ int(time.time()) }}"></script>
     </body>
 </html>
