@@ -216,6 +216,23 @@ def num2hex(x):
     return x
 
 
+def convert_coordinate_to_byte(value):
+    """
+    Convert a pixel coordinate to its corresponding HID byte representation.
+
+    Args:
+        value (int): The pixel coordinate (positive or negative).
+
+    Returns:
+        int: The equivalent byte value (0-255).
+    """
+    # Clamp the value to the range of -127 to 127
+    value = max(-127, min(127, value))
+
+    # Convert to unsigned byte representation
+    return (value + 256) % 256  # Convert negative to unsigned
+
+
 def send_mouse_move(hid_path, x, y, buttons):
     """
     Essentially you have to write 3 bytes:
@@ -234,14 +251,12 @@ def send_mouse_move(hid_path, x, y, buttons):
             echo -ne \\x00\\x9c\\x00 > /dev/hidg1
     """
 
-    byte_string = f"\\x{num2hex(buttons):02x}\\x{num2hex(x):02x}\\x{num2hex(y):02x}"
-    logger.info('byte_string: %s', byte_string)
-
-    # cmd = "echo -ne \\x00\\x9c\\x00 > /dev/hidg1"
-    # cmd = f"echo -ne \\x00\\x9c\\x00 > {hid_path}"
-    cmd = f"echo -ne {byte_string} > {hid_path}"
-    logger.info('cmd: %s', cmd)
-    os.system(cmd)
+    x_byte = convert_coordinate_to_byte(x)
+    y_byte = convert_coordinate_to_byte(y)
+    report = bytes([buttons, x_byte, y_byte])
+    with open(hid_path, 'wb+') as fd:
+        logger.info('Sending: %s', report.hex())
+        fd.write(report)
 
 
 def send_mouse_click(hid_path, button, x, y):

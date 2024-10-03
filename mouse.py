@@ -12,8 +12,10 @@ def write_report(report):
 
 
 def alternate_left_right():
-    s1 = b'\x00\x7f\x00'  # Move right
-    s2 = b'\x00\x90\x00'  # Move left
+    # s1 = b'\x00\x7f\x00'  # Move right
+    # s2 = b'\x00\x90\x00'  # Move left
+    s1 = bytes([0, 127, 0])  # Move right, i.e. b'\x00\x7f\x00'
+    s2 = bytes([0, 144, 0])  # Move left, i.e. b'\x00\x90\x00'
     for i in range(100):
         write_report(s1)
         time.sleep(0.3)
