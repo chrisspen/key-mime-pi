@@ -11,9 +11,12 @@ set -u
 
 SCRIPT_DIR="$(dirname "$(realpath "$BASH_SOURCE")")"
 
-if ! grep 'dtoverlay=dwc2' /boot/firmware/config.txt; then
-  echo "dtoverlay=dwc2" >> /boot/firmware/config.txt
-fi
+# Remove any existing dtoverlay=dwc2 lines in-case there are some weird edge-cases like "dtoverlay=dwc2,dr_mode=host"
+# that will screw up our configuration.
+sed -i '/dtoverlay=dwc2/d' /boot/firmware/config.txt
+
+# Now prepend dtoverlay=dwc2 to the beginning of the file so it's not subsumed under a subsection, preventing it from being used.
+echo -e "dtoverlay=dwc2\n$(cat /boot/firmware/config.txt)" > /boot/firmware/config.txt
 
 if ! grep dwc2 /etc/modules; then
   echo "dwc2" >> /etc/modules
