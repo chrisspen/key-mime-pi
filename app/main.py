@@ -211,21 +211,51 @@ def map_value(x, in_min, in_max, out_min, out_max):
 
 
 def send_mouse_move(hid_path, x, y, buttons):
-    with open(hid_path, 'wb+') as hid_handle:
-        buf = [0] * 8  # Initialize a buffer for the mouse report
-        buf[0] = buttons  # Buttons pressed
+    """
+    Essentially you have to write 3 bytes:
+    byte0 = 0x00 or 0x01 or 0x02 or 0x04 to press no button, button 1, 2, 3
+    byte1 = x movement as a char
+    byte2 = y movement as a char
 
-        # Map signed values (-127 to 127) to unsigned byte range (0 to 255)
-        mapped_x = int(map_value(x, -127, 127, 0, 255))  # X movement
-        mapped_y = int(map_value(y, -127, 127, 0, 255))  # Y movement
+    Test manually:
 
-        # Assign mapped values to the buffer
-        buf[1] = mapped_x  # Set the mapped x movement
-        buf[2] = mapped_y  # Set the mapped y movement
+        Move mouse 100 pixels to the right:
 
-        logger.info('Sending mouse movements: %s', buf)
+            echo -ne \\x00\\x64\\x00 > /dev/hidg1
 
-        hid_handle.write(bytearray(buf))
+        Move mouse 100 pixels to the left:
+
+            echo -ne \\x00\\x9c\\x00 > /dev/hidg1
+    """
+
+    byte_string = f"\\x{buttons:02x}\\x{x:02x}\\x{y:02x}"
+    logger.info('byte_string: %s', byte_string)
+
+    # with open(hid_path, 'wb+') as hid_handle:
+    # buf = [0] * 8  # Initialize a buffer for the mouse report
+    # buf[0] = buttons  # Buttons pressed
+
+    # # Map signed values (-127 to 127) to unsigned byte range (0 to 255)
+    # mapped_x = int(map_value(x, -127, 127, 0, 255))  # X movement
+    # mapped_y = int(map_value(y, -127, 127, 0, 255))  # Y movement
+
+    # # Assign mapped values to the buffer
+    # buf[1] = mapped_x  # Set the mapped x movement
+    # buf[2] = mapped_y  # Set the mapped y movement
+
+    # logger.info('Sending mouse movements: %s', buf)
+
+    # hid_handle.write(bytearray(buf))
+
+    # Button state
+    # button_byte = buttons
+
+    # # Convert x and y to unsigned representation
+    # x_byte = x & 0xFF  # Ensure x is treated as an unsigned byte
+    # y_byte = y & 0xFF  # Ensure y is treated as an unsigned byte
+
+    # Write the raw hex values directly
+    # hid_handle.write(bytes([button_byte, x_byte, y_byte]))
 
 
 def send_mouse_click(hid_path, button, x, y):
